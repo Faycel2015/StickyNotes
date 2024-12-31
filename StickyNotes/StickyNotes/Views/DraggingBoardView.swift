@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DraggingBoardView: View {
     @ObservedObject var viewModel: DraggingBoardViewModel
-    
+
     var body: some View {
         ZStack {
             ForEach(viewModel.draggedNotes) { draggedNote in
@@ -21,10 +21,10 @@ struct DraggingBoardView: View {
                     .gesture(
                         DragGesture()
                             .onChanged { gesture in
-                                viewModel.updateDragging(note: StickyNote(id: draggedNote.id, title: "", content: "", position: .zero, color: ""), offset: gesture.translation)
+                                viewModel.updateDragging(noteID: draggedNote.id, offset: gesture.translation)
                             }
                             .onEnded { _ in
-                                viewModel.endDragging(note: StickyNote(id: draggedNote.id, title: "", content: "", position: .zero, color: ""))
+                                viewModel.endDragging(noteID: draggedNote.id)
                             }
                     )
                     .animation(.easeInOut(duration: Constants.draggingAnimationDuration), value: draggedNote.offset)

@@ -10,50 +10,50 @@ import SwiftUI
 struct ContentView: View {
     @StateObject var stickyNoteViewModel = StickyNoteViewModel()
     @StateObject var quickNoteViewModel = QuickNoteViewModel()
-    @StateObject var timerBoardViewModel = TimerBoardViewModel()
+    @StateObject var draggingBoardViewModel = DraggingBoardViewModel()
 
     var body: some View {
         NavigationView {
-            ZStack {
-                Color("customLightGray")
-                    .edgesIgnoringSafeArea(.all)
-
-                VStack {
-                    HStack(spacing: 20) {
-                        Button(action: {
-                            withAnimation {
-                                stickyNoteViewModel.addNote()
-                            }
-                        }) {
-                            Text("Add Sticky Note")
-                                .padding()
-                                .background(Color("customBlue"))
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
+            VStack {
+                HStack(spacing: 20) {
+                    Button(action: {
+                        withAnimation {
+                            stickyNoteViewModel.addNote()
                         }
-
-                        Button(action: {
-                            withAnimation {
-                                quickNoteViewModel.addQuickNote()
-                            }
-                        }) {
-                            Text("Add Quick Note")
-                                .padding()
-                                .background(Color("customGreen"))
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
+                    }) {
+                        Text("Add Sticky Note")
+                            .padding()
+                            .background(Color(Constants.noteColors[1])) // Using customBlue
+                            .foregroundColor(.white)
+                            .cornerRadius(Constants.defaultCornerRadius)
                     }
-                    .padding()
+
+                    Button(action: {
+                        withAnimation {
+                            quickNoteViewModel.addQuickNote()
+                        }
+                    }) {
+                        Text("Add Quick Note")
+                            .padding()
+                            .background(Color(Constants.noteColors[2])) // Using customGreen
+                            .foregroundColor(.white)
+                            .cornerRadius(Constants.defaultCornerRadius)
+                    }
+                }
+                .padding()
+
+                ZStack {
+                    Color(Constants.timerBoardBackgroundColor)
+                        .edgesIgnoringSafeArea(.all)
 
                     StickyNoteView(viewModel: stickyNoteViewModel)
-                        .padding()
-
-                    TimerBoardView(viewModel: timerBoardViewModel)
-                        .padding()
+                    QuickNoteView(viewModel: quickNoteViewModel)
+                    DraggingBoardView(viewModel: draggingBoardViewModel)
                 }
-                .navigationTitle("Sticky Notes")
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+            .navigationTitle("Sticky Notes")
         }
     }
 }

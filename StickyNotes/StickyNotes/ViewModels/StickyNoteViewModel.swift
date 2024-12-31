@@ -30,16 +30,33 @@ class StickyNoteViewModel: ObservableObject {
     }
 
     func addNote() {
+        let content = "This is a new note."
+        let title = createTitle(from: content)
         let newNote = StickyNote(
             id: UUID(),
-            title: "New Note",
-            content: "This is a new note.",
-            position: Constants.defaultNotePosition,
+            title: title,
+            content: content,
+            position: calculateNewNotePosition(),
             color: Constants.noteColors.randomElement() ?? Constants.defaultNoteColor
         )
         notes.append(newNote)
         saveNotes()
         playSound(named: Constants.soundFileNames["add_note"]!)
+    }
+
+    private func calculateNewNotePosition() -> CGPoint {
+        // Calculate a new position for the note to avoid overlap
+        let xOffset: CGFloat = 20
+        let yOffset: CGFloat = 20
+        let initialPosition = Constants.defaultNotePosition
+
+        var newPosition = initialPosition
+        for _ in notes {
+            newPosition.x += xOffset
+            newPosition.y += yOffset
+        }
+
+        return newPosition
     }
 
     func updateNoteTitle(note: StickyNote, title: String) {
@@ -52,6 +69,8 @@ class StickyNoteViewModel: ObservableObject {
     func updateNoteContent(note: StickyNote, content: String) {
         if let index = notes.firstIndex(where: { $0.id == note.id }) {
             notes[index].content = content
+            // Update the title based on the new content
+            notes[index].title = createTitle(from: content)
             saveNotes()
         }
     }
@@ -68,6 +87,12 @@ class StickyNoteViewModel: ObservableObject {
         notes.removeAll { $0.id == note.id }
         saveNotes()
         playSound(named: Constants.soundFileNames["delete_note"]!)
+    }
+
+    private func createTitle(from content: String) -> String {
+        let words = content.split(separator: " ")
+        let title = words.prefix(5).joined(separator: " ") // Use first 5 words as title
+        return title
     }
 
     private func playSound(named soundName: String) {
