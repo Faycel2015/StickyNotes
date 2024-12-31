@@ -21,7 +21,7 @@ class QuickNoteViewModel: ObservableObject {
         if let loadedQuickNotes: [StickyNote] = DataManager.shared.load(Constants.quickNotesFileName) {
             quickNotes = loadedQuickNotes
         } else {
-            quickNotes = [] // Initialize with empty array if no saved quick notes
+            quickNotes = []
         }
     }
     
@@ -35,10 +35,15 @@ class QuickNoteViewModel: ObservableObject {
             title: "Quick Note",
             content: "",
             position: Constants.defaultNotePosition,
-            color: Constants.quickNoteBackgroundColor)
+            color: Constants.quickNoteBackgroundColor.description)
         quickNotes.append(newQuickNote)
         saveQuickNotes()
         playSound(named: Constants.soundFileNames["add_note"]!)
+    }
+    
+    func deleteQuickNote(note: StickyNote) {
+        quickNotes.removeAll { $0.id == note.id }
+        saveQuickNotes()
     }
     
     private func playSound(named soundName: String) {

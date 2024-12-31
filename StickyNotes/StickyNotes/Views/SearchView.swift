@@ -15,11 +15,11 @@ struct SearchView: View {
             TextField(Constants.searchPlaceholderText, text: $viewModel.searchText)
                 .padding()
                 .textFieldStyle(RoundedBorderTextFieldStyle())
-                .onChange(of: viewModel.searchText) { newValue in
+                .onChange(of: viewModel.searchText) { newValue, oldValue in
                     withAnimation(.easeInOut(duration: Constants.noteAnimationDuration)) {
-                        viewModel.searchNotes(notes: viewModel.allNotes) // Ensure `allNotes` is available in the view model
+                        viewModel.searchNotes()
                     }
-                }
+            }
             
             List(viewModel.searchResults) { note in
                 VStack(alignment: .leading) {
@@ -40,5 +40,5 @@ struct SearchView: View {
 }
 
 #Preview {
-    SearchView(viewModel: SearchViewModel())
+    SearchView(viewModel: SearchViewModel(allNotes: [StickyNote]()))
 }

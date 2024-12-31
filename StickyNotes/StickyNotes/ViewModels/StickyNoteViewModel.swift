@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import AVFoundation
+import SwiftUI
 
 class StickyNoteViewModel: ObservableObject {
     @Published var notes: [StickyNote] = []
@@ -35,7 +36,7 @@ class StickyNoteViewModel: ObservableObject {
             title: "New Note",
             content: "",
             position: Constants.defaultNotePosition,
-            color: Constants.noteColors.randomElement() ?? "yellow")
+            color: Constants.noteColors.randomElement()?.description ?? Constants.defaultNoteColor.description)
         notes.append(newNote)
         saveNotes()
         playSound(named: Constants.soundFileNames["add_note"]!)

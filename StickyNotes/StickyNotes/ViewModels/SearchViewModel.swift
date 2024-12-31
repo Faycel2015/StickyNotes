@@ -11,10 +11,20 @@ import Combine
 class SearchViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published var searchResults: [StickyNote] = []
+    var allNotes: [StickyNote] = []
+
+    init(allNotes: [StickyNote]) {
+        self.allNotes = allNotes
+        self.searchResults = allNotes
+    }
     
-    func searchNotes(notes: [StickyNote]) {
-        searchResults = notes.filter {
-            $0.title.contains(searchText) || $0.content.contains(searchText)
+    func searchNotes() {
+        if searchText.isEmpty {
+            searchResults = allNotes
+        } else {
+            searchResults = allNotes.filter {
+                $0.title.contains(searchText) || $0.content.contains(searchText)
+            }
         }
     }
 }
