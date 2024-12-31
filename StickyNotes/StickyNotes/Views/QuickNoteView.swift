@@ -9,45 +9,33 @@ import SwiftUI
 
 struct QuickNoteView: View {
     @ObservedObject var viewModel: QuickNoteViewModel
-    
+
     var body: some View {
-        List(viewModel.quickNotes) { note in
-            noteView(for: note)
-        }
-        .navigationTitle("Quick Notes")
-        .toolbar {
-            Button(action: {
-                withAnimation(.easeInOut(duration: Constants.noteAnimationDuration)) {
-                    viewModel.addQuickNote()
+        VStack {
+            ForEach(viewModel.quickNotes) { note in
+                VStack(alignment: .leading) {
+                    Text(note.title)
+                        .font(.system(size: Constants.noteTitleFontSize, weight: .bold))
+                    Text(note.content)
+                        .font(.system(size: Constants.noteContentFontSize))
                 }
-            }) {
-                Image(systemName: "plus")
-            }
-        }
-        .animation(.easeInOut(duration: Constants.noteAnimationDuration), value: viewModel.quickNotes)
-    }
-    
-    private func noteView(for note: StickyNote) -> some View {
-        VStack(alignment: .leading) {
-            Text(note.title)
-                .font(.headline)
-            Text(note.content)
-                .font(.subheadline)
-        }
-        .padding()
-        .background(Color(Constants.quickNoteBackgroundColor))
-        .cornerRadius(Constants.defaultCornerRadius)
-        .shadow(radius: Constants.defaultShadowRadius)
-        .onTapGesture {
-            // Handle tap gesture
-            withAnimation {
-                print("Quick note tapped: \(note.title)")
-            }
-        }
-        .onLongPressGesture {
-            // Handle long press gesture
-            withAnimation {
-                viewModel.deleteQuickNote(note: note)
+                .padding(Constants.notePadding)
+                .background(Color(note.color))
+                .cornerRadius(Constants.defaultCornerRadius)
+                .shadow(color: Color.black.opacity(Double(Constants.defaultShadowOpacity)), radius: Constants.defaultShadowRadius, x: Constants.defaultShadowOffset.width, y: Constants.defaultShadowOffset.height)
+                .onTapGesture {
+                    // Handle tap gesture
+                    withAnimation {
+                        print("Note tapped: \(note.title)")
+                    }
+                }
+                .onLongPressGesture {
+                    // Handle long press gesture
+                    withAnimation {
+                        viewModel.deleteQuickNote(note: note)
+                    }
+                }
+                .animation(.easeInOut(duration: Constants.noteAnimationDuration), value: note)
             }
         }
     }

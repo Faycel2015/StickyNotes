@@ -11,7 +11,7 @@ struct TimerBoardView: View {
     @ObservedObject var viewModel: TimerBoardViewModel
     
     var body: some View {
-        NavigationView {
+        VStack {
             List {
                 ForEach(viewModel.timers) { timer in
                     HStack {
@@ -24,6 +24,7 @@ struct TimerBoardView: View {
                             }
                         }) {
                             Image(systemName: "trash")
+                                .foregroundColor(.red)
                         }
                     }
                 }
@@ -40,7 +41,7 @@ struct TimerBoardView: View {
                     }
                 }
             }
-            .background(Color(Constants.timerBoardBackgroundColor))
+            .background(Color("customLightGray"))
             .animation(.easeInOut(duration: Constants.noteAnimationDuration), value: viewModel.timers)
         }
     }

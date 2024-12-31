@@ -6,54 +6,41 @@
 //
 
 import Foundation
-import Combine
-import AVFoundation
+import SwiftUI
 
 class QuickNoteViewModel: ObservableObject {
     @Published var quickNotes: [StickyNote] = []
-    private var audioPlayer: AVAudioPlayer?
-    
+
     init() {
-        loadQuickNotes()
+        loadNotes()
     }
-    
-    func loadQuickNotes() {
-        if let loadedQuickNotes: [StickyNote] = DataManager.shared.load(Constants.quickNotesFileName) {
-            quickNotes = loadedQuickNotes
+
+    func loadNotes() {
+        if let loadedNotes: [StickyNote] = DataManager.shared.load(Constants.quickNotesFileName) {
+            quickNotes = loadedNotes
         } else {
             quickNotes = []
         }
     }
-    
-    func saveQuickNotes() {
+
+    func saveNotes() {
         DataManager.shared.save(quickNotes, with: Constants.quickNotesFileName)
     }
-    
+
     func addQuickNote() {
-        let newQuickNote = StickyNote(
+        let newNote = StickyNote(
             id: UUID(),
-            title: "Quick Note",
-            content: "",
+            title: "New Quick Note",
+            content: "This is a new quick note.",
             position: Constants.defaultNotePosition,
-            color: Constants.quickNoteBackgroundColor)
-        quickNotes.append(newQuickNote)
-        saveQuickNotes()
-        playSound(named: Constants.soundFileNames["add_note"]!)
+            color: Constants.noteColors.randomElement() ?? Constants.defaultNoteColor
+        )
+        quickNotes.append(newNote)
+        saveNotes()
     }
-    
+
     func deleteQuickNote(note: StickyNote) {
         quickNotes.removeAll { $0.id == note.id }
-        saveQuickNotes()
-    }
-    
-    private func playSound(named soundName: String) {
-        if let soundURL = Bundle.main.url(forResource: soundName, withExtension: "wav") {
-            do {
-                audioPlayer = try AVAudioPlayer(contentsOf: soundURL)
-                audioPlayer?.play()
-            } catch {
-                print("Error playing sound: \(error.localizedDescription)")
-            }
-        }
+        saveNotes()
     }
 }

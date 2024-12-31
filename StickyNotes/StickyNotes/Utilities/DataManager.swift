@@ -9,33 +9,34 @@ import Foundation
 
 class DataManager {
     static let shared = DataManager()
-    
+
     private init() {}
-    
-    func save<T: Codable>(_ data: T, with fileName: String) {
-        let url = getDocumentsDirectory().appendingPathComponent(fileName)
+
+    func save<T: Encodable>(_ object: T, with fileName: String) {
+        let encoder = JSONEncoder()
         do {
-            let encoder = JSONEncoder()
-            let data = try encoder.encode(data)
+            let data = try encoder.encode(object)
+            guard let url = getURL(for: fileName) else { return }
             try data.write(to: url)
         } catch {
             print("Failed to save data: \(error.localizedDescription)")
         }
     }
-    
-    func load<T: Codable>(_ fileName: String) -> T? {
-        let url = getDocumentsDirectory().appendingPathComponent(fileName)
+
+    func load<T: Decodable>(_ fileName: String) -> T? {
+        guard let url = getURL(for: fileName), let data = try? Data(contentsOf: url) else { return nil }
+        let decoder = JSONDecoder()
         do {
-            let data = try Data(contentsOf: url)
-            let decoder = JSONDecoder()
-            return try decoder.decode(T.self, from: data)
+            let object = try decoder.decode(T.self, from: data)
+            return object
         } catch {
             print("Failed to load data: \(error.localizedDescription)")
             return nil
         }
     }
-    
-    private func getDocumentsDirectory() -> URL {
-        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+
+    private func getURL(for fileName: String) -> URL? {
+        let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+        return documentDirectory?.appendingPathComponent(fileName)
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct StickyNote: Identifiable, Codable, Equatable {
     var id: UUID

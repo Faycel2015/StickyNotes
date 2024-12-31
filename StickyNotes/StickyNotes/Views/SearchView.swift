@@ -8,37 +8,48 @@
 import SwiftUI
 
 struct SearchView: View {
-    @ObservedObject var viewModel: SearchViewModel
-    
+    @ObservedObject var viewModel: StickyNoteViewModel
+    @State private var searchText = ""
+
     var body: some View {
         VStack {
-            TextField(Constants.searchPlaceholderText, text: $viewModel.searchText)
+            TextField("Search...", text: $searchText)
                 .padding()
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .onChange(of: viewModel.searchText) { newValue, oldValue in
-                    withAnimation(.easeInOut(duration: Constants.noteAnimationDuration)) {
-                        viewModel.searchNotes()
+                .background(Color.white)
+                .cornerRadius(10)
+                .padding(.horizontal)
+
+            List {
+                ForEach(viewModel.notes.filter { $0.title.contains(searchText) || $0.content.contains(searchText) }) { note in
+                    VStack(alignment: .leading) {
+                        Text(note.title)
+                            .font(.headline)
+                        Text(note.content)
+                            .font(.subheadline)
                     }
-            }
-            
-            List(viewModel.searchResults) { note in
-                VStack(alignment: .leading) {
-                    Text(note.title)
-                        .font(.headline)
-                    Text(note.content)
-                        .font(.subheadline)
+                    .padding()
+                    .background(Color(note.color))
+                    .cornerRadius(10)
+                    .shadow(radius: 5)
+                    .onTapGesture {
+                        // Handle tap gesture
+                        withAnimation {
+                            print("Note tapped: \(note.title)")
+                        }
+                    }
+                    .onLongPressGesture {
+                        // Handle long press gesture
+                        withAnimation {
+                            viewModel.deleteNote(note: note)
+                        }
+                    }
+                    .animation(.easeInOut(duration: Constants.noteAnimationDuration), value: note)
                 }
-                .padding()
-                .background(Color(note.color))
-                .cornerRadius(Constants.defaultCornerRadius)
-                .shadow(radius: Constants.defaultShadowRadius)
             }
         }
-        .padding()
-        .animation(.easeInOut(duration: Constants.noteAnimationDuration), value: viewModel.searchResults)
     }
 }
 
 #Preview {
-    SearchView(viewModel: SearchViewModel(allNotes: [StickyNote]()))
+    SearchView(viewModel: StickyNoteViewModel())
 }
