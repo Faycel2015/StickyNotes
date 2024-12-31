@@ -9,10 +9,10 @@ import SwiftUI
 
 struct Constants {
     // Default colors for sticky notes (defined as color names)
-    static let noteColors: [Color] = ["customYellow", "customBlue", "customGreen", "customPink"].map { Color($0) }
+    static let noteColors: [String] = ["customYellow", "customBlue", "customGreen", "customPink"]
     
     // Default color for new sticky notes
-    static let defaultNoteColor: Color = Color("customYellow")
+    static let defaultNoteColor: String = "customYellow"
     
     // Default position for new notes
     static let defaultNotePosition = CGPoint(x: 50, y: 50)
@@ -50,10 +50,10 @@ struct Constants {
     static let searchPlaceholderText = "Search notes..."
     
     // Quick note settings
-    static let quickNoteBackgroundColor = "customLightBlue"
+    static let quickNoteBackgroundColor: String = "customLightBlue"
     
     // Timer board settings
-    static let timerBoardBackgroundColor = "customLightGray"
+    static let timerBoardBackgroundColor: String = "customLightGray"
     
     // Other UI constants
     static let defaultCornerRadius: CGFloat = 10

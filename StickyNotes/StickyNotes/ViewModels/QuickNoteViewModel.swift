@@ -35,7 +35,7 @@ class QuickNoteViewModel: ObservableObject {
             title: "Quick Note",
             content: "",
             position: Constants.defaultNotePosition,
-            color: Constants.quickNoteBackgroundColor.description)
+            color: Constants.quickNoteBackgroundColor)
         quickNotes.append(newQuickNote)
         saveQuickNotes()
         playSound(named: Constants.soundFileNames["add_note"]!)

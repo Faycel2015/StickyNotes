@@ -42,6 +42,20 @@ class StickyNoteViewModel: ObservableObject {
         playSound(named: Constants.soundFileNames["add_note"]!)
     }
     
+    func updateNoteTitle(note: StickyNote, title: String) {
+            if let index = notes.firstIndex(where: { $0.id == note.id }) {
+                notes[index].title = title
+                saveNotes()
+            }
+        }
+    
+    func updateNoteContent(note: StickyNote, content: String) {
+            if let index = notes.firstIndex(where: { $0.id == note.id }) {
+                notes[index].content = content
+                saveNotes()
+            }
+        }
+    
     func deleteNote(note: StickyNote) {
         notes.removeAll { $0.id == note.id }
         saveNotes()

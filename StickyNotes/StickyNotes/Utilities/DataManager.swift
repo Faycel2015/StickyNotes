@@ -10,32 +10,32 @@ import Foundation
 class DataManager {
     static let shared = DataManager()
     
-    func save<T: Encodable>(_ object: T, with fileName: String) {
-        let encoder = JSONEncoder()
+    private init() {}
+    
+    func save<T: Codable>(_ data: T, with fileName: String) {
+        let url = getDocumentsDirectory().appendingPathComponent(fileName)
         do {
-            let data = try encoder.encode(object)
-            if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-                let fileURL = documentDirectory.appendingPathComponent(fileName)
-                try data.write(to: fileURL)
-            }
+            let encoder = JSONEncoder()
+            let data = try encoder.encode(data)
+            try data.write(to: url)
         } catch {
-            print("Error saving data: \(error.localizedDescription)")
+            print("Failed to save data: \(error.localizedDescription)")
         }
     }
     
-    func load<T: Decodable>(_ fileName: String) -> T? {
-        let decoder = JSONDecoder()
-        if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let fileURL = documentDirectory.appendingPathComponent(fileName)
-            if let data = try? Data(contentsOf: fileURL) {
-                do {
-                    let object = try decoder.decode(T.self, from: data)
-                    return object
-                } catch {
-                    print("Error loading data: \(error.localizedDescription)")
-                }
-            }
+    func load<T: Codable>(_ fileName: String) -> T? {
+        let url = getDocumentsDirectory().appendingPathComponent(fileName)
+        do {
+            let data = try Data(contentsOf: url)
+            let decoder = JSONDecoder()
+            return try decoder.decode(T.self, from: data)
+        } catch {
+            print("Failed to load data: \(error.localizedDescription)")
+            return nil
         }
-        return nil
+    }
+    
+    private func getDocumentsDirectory() -> URL {
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
 }

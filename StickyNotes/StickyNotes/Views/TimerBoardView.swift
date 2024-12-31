@@ -11,34 +11,38 @@ struct TimerBoardView: View {
     @ObservedObject var viewModel: TimerBoardViewModel
     
     var body: some View {
-        List {
-            ForEach(viewModel.timers) { timer in
-                HStack {
-                    Text(timer.timerTitle)
-                    Spacer()
-                    Text("\(Int(timer.duration))s")
-                    Button(action: {
-                        withAnimation(.easeInOut(duration: Constants.noteAnimationDuration)) {
-                            viewModel.deleteTimer(timer: timer)
+        NavigationView {
+            List {
+                ForEach(viewModel.timers) { timer in
+                    HStack {
+                        Text(timer.timerTitle)
+                        Spacer()
+                        Text("\(Int(timer.duration))s")
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: Constants.noteAnimationDuration)) {
+                                viewModel.deleteTimer(timer: timer)
+                            }
+                        }) {
+                            Image(systemName: "trash")
                         }
-                    }) {
-                        Image(systemName: "trash")
                     }
                 }
             }
-        }
-        .navigationTitle("Timers")
-        .toolbar {
-            Button(action: {
-                withAnimation(.easeInOut(duration: Constants.noteAnimationDuration)) {
-                    viewModel.addTimer()
+            .navigationTitle("Timers")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: Constants.noteAnimationDuration)) {
+                            viewModel.addTimer()
+                        }
+                    }) {
+                        Image(systemName: "plus")
+                    }
                 }
-            }) {
-                Image(systemName: "plus")
             }
+            .background(Color(Constants.timerBoardBackgroundColor))
+            .animation(.easeInOut(duration: Constants.noteAnimationDuration), value: viewModel.timers)
         }
-        .background(Color(Constants.timerBoardBackgroundColor))
-        .animation(.easeInOut(duration: Constants.noteAnimationDuration), value: viewModel.timers)
     }
 }
 
