@@ -9,7 +9,11 @@ import Foundation
 import Combine
 
 class SearchViewModel: ObservableObject {
-    @Published var searchText: String = ""
+    @Published var searchText: String = "" {
+        didSet {
+            searchNotes()
+        }
+    }
     @Published var searchResults: [StickyNote] = []
     var allNotes: [StickyNote] = []
 

@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import SwiftUI
+import CoreGraphics
 
 struct TimerBoardData: Identifiable, Codable, Equatable {
     var id: UUID

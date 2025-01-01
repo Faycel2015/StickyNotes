@@ -12,31 +12,44 @@ class DataManager {
 
     private init() {}
 
+    // Generic save method
     func save<T: Encodable>(_ object: T, with fileName: String) {
+        let url = getDocumentsDirectory().appendingPathComponent(fileName)
         let encoder = JSONEncoder()
         do {
             let data = try encoder.encode(object)
-            guard let url = getURL(for: fileName) else { return }
-            try data.write(to: url)
+            try data.write(to: url, options: .atomicWrite)
         } catch {
-            print("Failed to save data: \(error.localizedDescription)")
+            print("Failed to save \(fileName): \(error.localizedDescription)")
         }
     }
 
+    // Generic load method
     func load<T: Decodable>(_ fileName: String) -> T? {
-        guard let url = getURL(for: fileName), let data = try? Data(contentsOf: url) else { return nil }
-        let decoder = JSONDecoder()
-        do {
-            let object = try decoder.decode(T.self, from: data)
-            return object
-        } catch {
-            print("Failed to load data: \(error.localizedDescription)")
-            return nil
+        let url = getDocumentsDirectory().appendingPathComponent(fileName)
+        if let data = try? Data(contentsOf: url) {
+            let decoder = JSONDecoder()
+            return try? decoder.decode(T.self, from: data)
+        }
+        return nil
+    }
+
+    // Method to clear all saved notes
+    func clearAllNotes() {
+        let fileNames = [Constants.stickyNotesFileName, Constants.quickNotesFileName, Constants.timerBoardFileName]
+        for fileName in fileNames {
+            let url = getDocumentsDirectory().appendingPathComponent(fileName)
+            do {
+                try FileManager.default.removeItem(at: url)
+                print("\(fileName) cleared successfully.")
+            } catch {
+                print("Failed to clear \(fileName): \(error.localizedDescription)")
+            }
         }
     }
 
-    private func getURL(for fileName: String) -> URL? {
-        let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
-        return documentDirectory?.appendingPathComponent(fileName)
+    // Helper method to get documents directory
+    private func getDocumentsDirectory() -> URL {
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
 }

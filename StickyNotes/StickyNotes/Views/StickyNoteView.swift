@@ -11,17 +11,33 @@ struct StickyNoteView: View {
     @ObservedObject var viewModel: StickyNoteViewModel
 
     var body: some View {
-        ZStack {
-            ForEach(viewModel.notes) { note in
-                StickyNoteCard(note: note, viewModel: viewModel)
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                withAnimation {
-                                    viewModel.updateNotePosition(note: note, position: value.location)
+        GeometryReader { geometry in
+            ZStack {
+                ForEach(viewModel.notes) { note in
+                    StickyNoteCard(note: note, viewModel: viewModel)
+                        .position(note.position)
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    withAnimation {
+                                        let newPosition = CGPoint(
+                                            x: min(max(note.position.x + value.translation.width, 0), geometry.size.width),
+                                            y: min(max(note.position.y + value.translation.height, 0), geometry.size.height)
+                                        )
+                                        viewModel.updateNotePosition(note: note, position: newPosition)
+                                    }
                                 }
-                            }
-                    )
+                                .onEnded { value in
+                                    withAnimation {
+                                        let newPosition = CGPoint(
+                                            x: min(max(note.position.x + value.translation.width, 0), geometry.size.width),
+                                            y: min(max(note.position.y + value.translation.height, 0), geometry.size.height)
+                                        )
+                                        viewModel.updateNotePosition(note: note, position: newPosition)
+                                    }
+                                }
+                        )
+                }
             }
         }
     }
@@ -32,53 +48,45 @@ struct StickyNoteCard: View {
     @ObservedObject var viewModel: StickyNoteViewModel
 
     var body: some View {
-        VStack(alignment: .leading) {
-            TextField("Title", text: Binding(
-                get: { note.title },
-                set: { newTitle in updateNoteTitle(newTitle) }
-            ))
-            .font(.system(size: Constants.noteTitleFontSize, weight: .bold))
-            .foregroundColor(.black)
+            GeometryReader { geometry in
+                VStack(alignment: .leading) {
+                    TextField("Title", text: Binding(
+                        get: { note.title },
+                        set: { newTitle in viewModel.updateNoteTitle(note: note, title: newTitle) }
+                    ))
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.black)
+                    .padding(5)
 
-            TextEditor(text: Binding(
-                get: { note.content },
-                set: { newContent in updateNoteContent(newContent) }
-            ))
-            .font(.system(size: Constants.noteContentFontSize))
-            .foregroundColor(.black)
-            .frame(height: 100)
-            .background(Color.clear)
-        }
-        .padding(Constants.notePadding)
-        .background(Color(note.color))
-        .cornerRadius(Constants.defaultCornerRadius)
-        .shadow(color: Color.black.opacity(Double(Constants.defaultShadowOpacity)), radius: Constants.defaultShadowRadius, x: Constants.defaultShadowOffset.width, y: Constants.defaultShadowOffset.height)
-        .position(note.position)
-        .onTapGesture {
-            // Handle tap gesture
-            withAnimation {
-                print("Note tapped: \(note.title)")
+                    TextEditor(text: Binding(
+                        get: { note.content },
+                        set: { newContent in viewModel.updateNoteContent(note: note, content: newContent) }
+                    ))
+                    .font(.system(size: 16))
+                    .foregroundColor(.black)
+                    .frame(height: geometry.size.height * 0.6)
+                    .padding(5)
+
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            viewModel.deleteNote(note: note)
+                        }) {
+                            Text("Delete")
+                                .foregroundColor(.red)
+                        }
+                        .padding(5)
+                    }
+                }
+                .padding()
+                .background(Color(note.color))
+                .cornerRadius(10)
+                .shadow(radius: 5)
+                .frame(width: geometry.size.width * 0.9, height: geometry.size.height * 0.3)
             }
+            .frame(width: UIScreen.main.bounds.width * 0.9, height: UIScreen.main.bounds.height * 0.3)
         }
-        .onLongPressGesture {
-            // Handle long press gesture
-            withAnimation {
-                viewModel.deleteNote(note: note)
-            }
-        }
-        .animation(.easeInOut(duration: Constants.noteAnimationDuration), value: note.position)
     }
-
-    private func updateNoteTitle(_ newTitle: String) {
-        viewModel.updateNoteTitle(note: note, title: newTitle)
-        note.title = newTitle
-    }
-
-    private func updateNoteContent(_ newContent: String) {
-        viewModel.updateNoteContent(note: note, content: newContent)
-        note.content = newContent
-    }
-}
 
 #Preview {
     StickyNoteView(viewModel: StickyNoteViewModel())

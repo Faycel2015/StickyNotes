@@ -8,48 +8,41 @@
 import SwiftUI
 
 struct SearchView: View {
-    @ObservedObject var viewModel: StickyNoteViewModel
-    @State private var searchText = ""
+    @ObservedObject var viewModel: SearchViewModel
 
     var body: some View {
         VStack {
-            TextField("Search...", text: $searchText)
+            TextField("Search...", text: $viewModel.searchText)
                 .padding()
-                .background(Color.white)
+                .background(Color(.systemGray6))
                 .cornerRadius(10)
                 .padding(.horizontal)
 
-            List {
-                ForEach(viewModel.notes.filter { $0.title.contains(searchText) || $0.content.contains(searchText) }) { note in
-                    VStack(alignment: .leading) {
-                        Text(note.title)
-                            .font(.headline)
-                        Text(note.content)
-                            .font(.subheadline)
-                    }
-                    .padding()
-                    .background(Color(note.color))
-                    .cornerRadius(10)
-                    .shadow(radius: 5)
-                    .onTapGesture {
-                        // Handle tap gesture
-                        withAnimation {
-                            print("Note tapped: \(note.title)")
-                        }
-                    }
-                    .onLongPressGesture {
-                        // Handle long press gesture
-                        withAnimation {
-                            viewModel.deleteNote(note: note)
-                        }
-                    }
-                    .animation(.easeInOut(duration: Constants.noteAnimationDuration), value: note)
+            List(viewModel.searchResults) { note in
+                VStack(alignment: .leading) {
+                    Text(note.title)
+                        .font(.headline)
+                    Text(note.content)
+                        .font(.subheadline)
                 }
+                .padding()
+                .background(note.color.toColor) // Use the toColor computed property
+                .cornerRadius(10)
+                .shadow(radius: 5)
             }
         }
     }
 }
 
-#Preview {
-    SearchView(viewModel: StickyNoteViewModel())
+//#Preview {
+struct SearchView_Previews: PreviewProvider {
+    static var previews: some View {
+        // Provide some sample notes for preview
+        let sampleNotes = [
+            StickyNote(id: UUID(), title: "Note 1", content: "This is the first note", position: .zero, color: "yellow"),
+            StickyNote(id: UUID(), title: "Note 2", content: "This is the second note", position: .zero, color: "blue"),
+        ]
+        SearchView(viewModel: SearchViewModel(allNotes: sampleNotes))
+    }
 }
+

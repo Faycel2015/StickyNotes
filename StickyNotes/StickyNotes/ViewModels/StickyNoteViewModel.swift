@@ -20,8 +20,6 @@ class StickyNoteViewModel: ObservableObject {
     func loadNotes() {
         if let loadedNotes: [StickyNote] = DataManager.shared.load(Constants.stickyNotesFileName) {
             notes = loadedNotes
-        } else {
-            notes = [] // Initialize with empty array if no saved notes
         }
     }
 
@@ -37,7 +35,7 @@ class StickyNoteViewModel: ObservableObject {
             title: title,
             content: content,
             position: calculateNewNotePosition(),
-            color: Constants.noteColors.randomElement() ?? Constants.defaultNoteColor
+            color: Constants.noteColors.randomElement() ?? "gray"
         )
         notes.append(newNote)
         saveNotes()
@@ -45,15 +43,20 @@ class StickyNoteViewModel: ObservableObject {
     }
 
     private func calculateNewNotePosition() -> CGPoint {
-        // Calculate a new position for the note to avoid overlap
-        let xOffset: CGFloat = 20
-        let yOffset: CGFloat = 20
-        let initialPosition = Constants.defaultNotePosition
+        let xOffset: CGFloat = 30
+        let yOffset: CGFloat = 30
+        var newPosition = Constants.defaultNotePosition
 
-        var newPosition = initialPosition
+        // Calculate a new position to avoid overlap
         for _ in notes {
             newPosition.x += xOffset
             newPosition.y += yOffset
+            if newPosition.x + Constants.defaultNoteSize.width > UIScreen.main.bounds.width {
+                newPosition.x = Constants.defaultNotePosition.x
+            }
+            if newPosition.y + Constants.defaultNoteSize.height > UIScreen.main.bounds.height {
+                newPosition.y = Constants.defaultNotePosition.y
+            }
         }
 
         return newPosition
@@ -69,7 +72,6 @@ class StickyNoteViewModel: ObservableObject {
     func updateNoteContent(note: StickyNote, content: String) {
         if let index = notes.firstIndex(where: { $0.id == note.id }) {
             notes[index].content = content
-            // Update the title based on the new content
             notes[index].title = createTitle(from: content)
             saveNotes()
         }
@@ -89,10 +91,15 @@ class StickyNoteViewModel: ObservableObject {
         playSound(named: Constants.soundFileNames["delete_note"]!)
     }
 
+    func clearAllNotes() {
+        notes.removeAll()
+        DataManager.shared.clearAllNotes()
+        playSound(named: Constants.soundFileNames["delete_note"]!)
+    }
+
     private func createTitle(from content: String) -> String {
         let words = content.split(separator: " ")
-        let title = words.prefix(5).joined(separator: " ") // Use first 5 words as title
-        return title
+        return words.prefix(5).joined(separator: " ")
     }
 
     private func playSound(named soundName: String) {

@@ -9,12 +9,37 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject var stickyNoteViewModel = StickyNoteViewModel()
-    @StateObject var quickNoteViewModel = QuickNoteViewModel()
     @StateObject var draggingBoardViewModel = DraggingBoardViewModel()
+    @StateObject var searchViewModel: SearchViewModel
+    @StateObject var timerBoardViewModel = TimerBoardViewModel()
+
+    init() {
+        // Initialize the search view model with all notes from the sticky note view model
+        let stickyNoteViewModel = StickyNoteViewModel()
+        _searchViewModel = StateObject(wrappedValue: SearchViewModel(allNotes: stickyNoteViewModel.notes))
+    }
 
     var body: some View {
         NavigationView {
             VStack {
+                ZStack {
+                    Color(Constants.timerBoardBackgroundColor)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                    VStack {
+                        SearchView(viewModel: searchViewModel)
+                            .padding(.top)
+
+                        TimerBoardView(viewModel: timerBoardViewModel)
+                            .padding(.top)
+
+                        StickyNoteView(viewModel: stickyNoteViewModel)
+                        DraggingBoardView(viewModel: draggingBoardViewModel)
+                    }
+                }
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
                 HStack(spacing: 20) {
                     Button(action: {
                         withAnimation {
@@ -30,28 +55,19 @@ struct ContentView: View {
 
                     Button(action: {
                         withAnimation {
-                            quickNoteViewModel.addQuickNote()
+                            stickyNoteViewModel.clearAllNotes()
                         }
                     }) {
-                        Text("Add Quick Note")
+                        Text("Clear All Notes")
                             .padding()
-                            .background(Color(Constants.noteColors[2])) // Using customGreen
+                            .background(Color.red) // Using red for the clear button
                             .foregroundColor(.white)
                             .cornerRadius(Constants.defaultCornerRadius)
                     }
                 }
                 .padding()
-
-                ZStack {
-                    Color(Constants.timerBoardBackgroundColor)
-                        .edgesIgnoringSafeArea(.all)
-
-                    StickyNoteView(viewModel: stickyNoteViewModel)
-                    QuickNoteView(viewModel: quickNoteViewModel)
-                    DraggingBoardView(viewModel: draggingBoardViewModel)
-                }
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity)
+                .background(Color.white)
             }
             .navigationTitle("Sticky Notes")
         }

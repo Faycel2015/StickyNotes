@@ -15,3 +15,25 @@ struct StickyNote: Identifiable, Codable, Equatable {
     var position: CGPoint
     var color: String
 }
+
+extension String {
+    var toColor: Color {
+        switch self.lowercased() {
+        case "red":
+            return .red
+        case "green":
+            return .green
+        case "blue":
+            return .blue
+        case "yellow":
+            return .yellow
+        case "orange":
+            return .orange
+        case "purple":
+            return .purple
+        // Add more colors as needed
+        default:
+            return .gray // Default color if no match is found
+        }
+    }
+}
